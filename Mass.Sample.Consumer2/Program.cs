@@ -22,10 +22,19 @@ services.AddMassTransit(x =>
             h.Password("guest");
         });
 
+
+        config.UseKillSwitch(options => options
+                .SetActivationThreshold(10)
+                .SetTripThreshold(0.15)
+                .SetRestartTimeout(m: 1));
+
+
         config.ReceiveEndpoint("sample-event-listener", e =>
         {
             e.PrefetchCount = 16;
-            e.UseMessageRetry(r => r.Interval(2, 100));
+            e.UseMessageRetry(r => r.Interval(2, 100)); 
+            
+            e.UseRateLimit(20, TimeSpan.FromSeconds(5));
             e.ConfigureConsumer<SampleConsumer>(provider);
         });
 
@@ -33,6 +42,8 @@ services.AddMassTransit(x =>
         {
             e.PrefetchCount = 16;
             e.UseMessageRetry(r => r.Interval(2, 100));
+
+            e.UseRateLimit(20, TimeSpan.FromSeconds(5));
             e.ConfigureConsumer<BroadcastConsumer>(provider);
         });
     }));

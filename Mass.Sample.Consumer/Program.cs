@@ -22,6 +22,15 @@ services.AddMassTransit(x =>
             h.Password("guest");
         });
 
+
+        config.UseKillSwitch(options => options
+                .SetActivationThreshold(10)
+                .SetTripThreshold(0.15)
+                .SetRestartTimeout(m: 1));
+
+
+
+
         config.ReceiveEndpoint("sample-event-listener", e =>
         {
             e.PrefetchCount = 16;
